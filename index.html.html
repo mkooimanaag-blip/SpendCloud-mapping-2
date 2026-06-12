@@ -1,0 +1,433 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.toolbar input, .toolbar select { font-size: 14px; }
+.toolbar input[type="text"] { flex: 1; min-width: 140px; }
+select { min-width: 160px; }
+.btn { font-size: 13px; padding: 6px 14px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn:hover { background: var(--color-background-secondary); }
+.btn.primary { background: #3A7D58; color: #fff; border-color: #3A7D58; }
+.btn.primary:hover { background: #2E6347; }
+.btn.danger { color: var(--color-text-danger); border-color: var(--color-border-danger); }
+.btn.danger:hover { background: var(--color-background-danger); }
+.empty { text-align: center; padding: 2.5rem 1rem; color: var(--color-text-tertiary); font-size: 14px; border: 0.5px dashed var(--color-border-tertiary); border-radius: var(--border-radius-lg); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+th { text-align: left; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); padding: 6px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+td { padding: 7px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: middle; word-break: break-word; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--color-background-secondary); }
+.badge.yes { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 99px; font-weight: 500; background: #EAF3DE; color: #3B6D11; }
+.tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 99px; background: #E1F5EE; color: #0F6E56; font-weight: 500; }
+.xml-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--color-background-info); color: var(--color-text-info); font-family: var(--font-mono); cursor: pointer; border: 0.5px solid var(--color-border-info); }
+.xml-chip:hover { opacity: 0.8; }
+.doel-notitie { font-size: 11px; color: var(--color-text-secondary); font-style: italic; margin-top: 2px; }
+.modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; align-items: center; justify-content: center; }
+.modal-bg.open { display: flex; }
+.modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1.5rem; width: 560px; max-width: 95vw; max-height: 90vh; overflow-y: auto; }
+.modal h3 { font-size: 15px; font-weight: 500; margin-bottom: 1.25rem; }
+.modal-xml { background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1.5rem; width: 680px; max-width: 95vw; max-height: 85vh; overflow-y: auto; }
+.modal-xml h3 { font-size: 15px; font-weight: 500; margin-bottom: 1rem; }
+.form-row { margin-bottom: 12px; }
+.form-row label { display: block; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.form-row input, .form-row select, .form-row textarea { width: 100%; font-size: 14px; }
+.form-row textarea { resize: vertical; }
+.doel-block { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; background: var(--color-background-secondary); }
+.doel-block select { margin-bottom: 8px; background: var(--color-background-primary); }
+.doel-block textarea { background: #ffffff; height: 72px; font-size: 13px; }
+.doel-block .sub-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; display: block; }
+.notitie-hint { font-size: 11px; color: var(--color-text-tertiary); margin-top: 4px; font-style: italic; }
+.upload-zone { border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.upload-zone:hover { background: var(--color-background-secondary); }
+.upload-zone input[type="file"] { display: none; }
+.upload-zone .filename { font-size: 13px; color: var(--color-text-secondary); font-style: italic; }
+.upload-zone .filename.loaded { color: var(--color-text-success); font-style: normal; font-family: var(--font-mono); font-size: 12px; }
+.xml-preview { margin-top: 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; font-family: var(--font-mono); font-size: 11px; color: var(--color-text-secondary); max-height: 120px; overflow-y: auto; white-space: pre; line-height: 1.5; border: 0.5px solid var(--color-border-tertiary); }
+.xml-full { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); max-height: 55vh; overflow: auto; white-space: pre; line-height: 1.6; border: 0.5px solid var(--color-border-tertiary); }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+.filter-row { display: flex; gap: 8px; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+.counter { font-size: 12px; color: var(--color-text-secondary); }
+.col-lev { width: 11%; }
+.col-xml { width: 13%; }
+.col-herk { width: 12%; }
+.col-line { width: 10%; }
+.col-doel { width: 24%; }
+.col-opm { width: 20%; }
+.col-act { width: 10%; }
+</style>
+
+<h2 class="sr-only">SpendCloud XML Mapping tool</h2>
+
+<div class="toolbar">
+  <select id="sel-lev"><option value="">Alle leveranciers</option></select>
+  <input type="text" id="search" placeholder="Zoek op veld of omschrijving…" />
+  <button class="btn primary" onclick="openModal()"><i class="ti ti-plus" aria-hidden="true"></i> Mapping toevoegen</button>
+  <button class="btn" onclick="exportCSV()"><i class="ti ti-download" aria-hidden="true"></i> Exporteer CSV</button>
+</div>
+
+<div class="filter-row">
+  <span class="counter" id="counter">0 mappings</span>
+  <label style="font-size:13px; color:var(--color-text-secondary); display:flex; align-items:center; gap:5px; cursor:pointer;">
+    <input type="checkbox" id="only-required"> Alleen verplicht
+  </label>
+</div>
+
+<div id="table-wrap">
+  <div class="empty" id="empty-state"><i class="ti ti-table-off" style="font-size:28px; display:block; margin-bottom:8px;" aria-hidden="true"></i>Nog geen mappings. Voeg er een toe.</div>
+  <table id="mapping-table" style="display:none;">
+    <thead>
+      <tr>
+        <th class="col-lev">Leverancier</th>
+        <th class="col-xml">XML</th>
+        <th class="col-herk">Herkenningsstring</th>
+        <th class="col-line">Line identifier</th>
+        <th class="col-doel">SpendCloud-veld</th>
+        <th class="col-opm">Opmerking</th>
+        <th class="col-act"></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
+
+<!-- Mapping modal -->
+<div class="modal-bg" id="modal-bg" onclick="bgClose(event)">
+  <div class="modal">
+    <h3 id="modal-title">Mapping toevoegen</h3>
+    <div class="form-row">
+      <label>Leverancier <span style="color:var(--color-text-danger)">*</span></label>
+      <input type="text" id="f-lev" list="lev-list" placeholder="bijv. Essity, Rabobank…" />
+      <datalist id="lev-list"></datalist>
+    </div>
+    <div class="form-row">
+      <label>XML <span style="color:var(--color-text-danger)">*</span> — upload een bestand of typ een pad</label>
+      <div class="upload-zone" onclick="document.getElementById('xml-file-input').click()">
+        <i class="ti ti-file-upload" style="font-size:20px; color:var(--color-text-secondary);" aria-hidden="true"></i>
+        <span class="filename" id="xml-filename">Klik om een XML-bestand te uploaden…</span>
+        <input type="file" id="xml-file-input" accept=".xml,text/xml,application/xml" onchange="handleXMLUpload(event)" />
+      </div>
+      <div id="xml-preview" class="xml-preview" style="display:none;"></div>
+      <input type="text" id="f-xml" placeholder="of typ handmatig: bijv. /Invoice/Header/InvoiceNr" style="margin-top:8px;" />
+    </div>
+    <div class="form-row">
+      <label>Herkenningsstring</label>
+      <input type="text" id="f-herk" placeholder="bijv. vaste waarde of patroon in het XML" />
+    </div>
+    <div class="form-row">
+      <label>Line identifier</label>
+      <input type="text" id="f-line" placeholder="bijv. regelidentificatie" />
+    </div>
+    <div class="form-row">
+      <label>SpendCloud-veld (doel) <span style="color:var(--color-text-danger)">*</span></label>
+      <div class="doel-block">
+        <span class="sub-label">Veld</span>
+        <select id="f-doel" onchange="onDoelChange()">
+          <option value="">— selecteer veld —</option>
+          <optgroup label="Factuurkop">
+            <option>Factuurkop - Factuurdatum</option>
+            <option>Factuurkop - Periode</option>
+            <option>Factuurkop - Incl. btw</option>
+            <option>Factuurkop - Btw %</option>
+            <option>Factuurkop - Btw code</option>
+            <option>Factuurkop - Btw bedrag</option>
+            <option>Factuurkop - Excl. btw</option>
+            <option>Factuurkop - Betalingsconditie</option>
+            <option>Factuurkop - Factuur betalingsreferentie</option>
+            <option>Factuurkop - Omschrijving</option>
+            <option>Factuurkop - Toelichting</option>
+          </optgroup>
+          <optgroup label="Factuurregel">
+            <option>Factuurregel - Incl. btw</option>
+            <option>Factuurregel - Btw %</option>
+            <option>Factuurregel - Btw code</option>
+            <option>Factuurregel - Btw bedrag</option>
+            <option>Factuurregel - Excl. btw</option>
+            <option>Factuurregel - Omschrijving regel</option>
+            <option>Factuurregel - Grootboekrekening</option>
+            <option>Factuurregel - Organisatorische eenheid</option>
+            <option>Factuurregel - Kostendrager</option>
+            <option>Factuurregel - Periode</option>
+            <option>Factuurregel - Aantal periodes</option>
+            <option>Factuurregel - Afwijkende administratie</option>
+            <option>Factuurregel - Toelichting</option>
+            <option>Factuurregel - Contract</option>
+          </optgroup>
+          <optgroup label="Relatie / Crediteur">
+            <option>Relatie - Nummer</option>
+            <option>Relatie - Naam</option>
+            <option>Relatie - Zoekcode</option>
+            <option>Relatie - Adres</option>
+            <option>Relatie - Postcode</option>
+            <option>Relatie - Plaats</option>
+            <option>Relatie - Telefoonnummer</option>
+            <option>Relatie - Bankrekeningnummer</option>
+            <option>Relatie - KvK-nummer</option>
+            <option>Relatie - Btw-nummer</option>
+          </optgroup>
+          <optgroup label="Ontvanger">
+            <option>Ontvanger - Naam</option>
+            <option>Ontvanger - Nummer</option>
+            <option>Ontvanger - Adres</option>
+            <option>Ontvanger - Postcode</option>
+            <option>Ontvanger - Plaats</option>
+            <option>Ontvanger - KvK-nummer</option>
+            <option>Ontvanger - Btw-nummer</option>
+          </optgroup>
+        </select>
+        <span class="sub-label" id="notitie-label" style="display:none;">Verwijzing naar XML-veld</span>
+        <textarea id="f-doel-notitie" placeholder="bijv. /Invoice/Header/InvoiceDate of XPath-verwijzing…" style="display:none;"></textarea>
+        <p class="notitie-hint" id="notitie-hint" style="display:none;"></p>
+      </div>
+    </div>
+    <div class="form-row" style="display:flex; align-items:center; gap:10px;">
+      <label style="margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <input type="checkbox" id="f-verp" /> Verplicht veld
+      </label>
+    </div>
+    <div class="form-row">
+      <label>Opmerking</label>
+      <textarea id="f-opm" placeholder="bijv. transformatieregel, format, uitzondering…" style="height:64px;"></textarea>
+    </div>
+    <div id="form-err" style="font-size:12px; color:var(--color-text-danger); margin-top:4px; display:none;"></div>
+    <div class="form-actions">
+      <button class="btn" onclick="closeModal()">Annuleren</button>
+      <button class="btn primary" onclick="saveMapping()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- XML viewer modal -->
+<div class="modal-bg" id="xml-modal-bg" onclick="closeXMLModal(event)">
+  <div class="modal-xml">
+    <h3 id="xml-modal-title">XML-bestand</h3>
+    <div class="xml-full" id="xml-modal-content"></div>
+    <div class="form-actions" style="margin-top:1rem;">
+      <button class="btn" onclick="document.getElementById('xml-modal-bg').classList.remove('open')">Sluiten</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let mappings = JSON.parse(localStorage.getItem('sc_mappings_v4') || '[]');
+let editId = null;
+let currentXMLContent = '';
+let doelNotities = {};
+
+function save() { try { localStorage.setItem('sc_mappings_v4', JSON.stringify(mappings)); } catch(e) {} }
+function getLeveranciers() { return [...new Set(mappings.map(m => m.leverancier))].sort(); }
+
+function onDoelChange() {
+  const sel = document.getElementById('f-doel');
+  const ta = document.getElementById('f-doel-notitie');
+  const lbl = document.getElementById('notitie-label');
+  const hint = document.getElementById('notitie-hint');
+  const veld = sel.value;
+
+  if (!veld) {
+    ta.style.display = 'none';
+    lbl.style.display = 'none';
+    hint.style.display = 'none';
+    return;
+  }
+
+  ta.style.display = 'block';
+  lbl.style.display = 'block';
+  ta.value = doelNotities[veld] || '';
+
+  const aantalIngevuld = Object.values(doelNotities).filter(v => v.trim()).length;
+  if (aantalIngevuld > 0) {
+    hint.textContent = `${aantalIngevuld} veld${aantalIngevuld !== 1 ? 'en' : ''} ${aantalIngevuld !== 1 ? 'hebben' : 'heeft'} al een verwijzing.`;
+    hint.style.display = 'block';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
+function onDoelNotitieInput() {
+  const veld = document.getElementById('f-doel').value;
+  if (veld) doelNotities[veld] = document.getElementById('f-doel-notitie').value;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('f-doel-notitie').addEventListener('input', onDoelNotitieInput);
+});
+
+function handleXMLUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    currentXMLContent = ev.target.result;
+    document.getElementById('xml-filename').textContent = file.name;
+    document.getElementById('xml-filename').classList.add('loaded');
+    const preview = document.getElementById('xml-preview');
+    preview.style.display = 'block';
+    preview.textContent = currentXMLContent.slice(0, 600) + (currentXMLContent.length > 600 ? '\n…' : '');
+    if (!document.getElementById('f-xml').value) document.getElementById('f-xml').value = file.name;
+  };
+  reader.readAsText(file);
+}
+
+function render() {
+  const filter = document.getElementById('sel-lev').value;
+  const q = document.getElementById('search').value.toLowerCase();
+  const onlyReq = document.getElementById('only-required').checked;
+
+  let rows = mappings.filter(m => {
+    if (filter && m.leverancier !== filter) return false;
+    if (onlyReq && !m.verplicht) return false;
+    const notitiesText = Object.values(m.doelNotities || {}).join(' ');
+    if (q && !`${m.leverancier} ${m.xml} ${m.herk} ${m.line} ${m.doel} ${notitiesText} ${m.opm}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('counter').textContent = `${rows.length} mapping${rows.length !== 1 ? 's' : ''}`;
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+  const empty = document.getElementById('empty-state');
+  const table = document.getElementById('mapping-table');
+
+  if (rows.length === 0) { empty.style.display = 'block'; table.style.display = 'none'; return; }
+  empty.style.display = 'none'; table.style.display = 'table';
+
+  rows.forEach(m => {
+    const tr = document.createElement('tr');
+    const xmlCell = m.xmlContent
+      ? `<span class="xml-chip" onclick="viewXML('${m.id}')" title="Bekijk XML"><i class="ti ti-file-code" aria-hidden="true"></i>${esc(m.xml)}</span>`
+      : `<span style="font-family:var(--font-mono);font-size:12px;">${esc(m.xml)}</span>`;
+    const notitie = (m.doelNotities || {})[m.doel] || '';
+    const doelCell = notitie
+      ? `<div>${esc(m.doel)}${m.verplicht ? ' <span class="badge yes">verplicht</span>' : ''}</div><div class="doel-notitie">${esc(notitie)}</div>`
+      : `${esc(m.doel)}${m.verplicht ? ' <span class="badge yes">verplicht</span>' : ''}`;
+    tr.innerHTML = `
+      <td><span class="tag">${esc(m.leverancier)}</span></td>
+      <td>${xmlCell}</td>
+      <td style="font-size:12px;color:var(--color-text-secondary);">${esc(m.herk)}</td>
+      <td style="font-size:12px;color:var(--color-text-secondary);">${esc(m.line)}</td>
+      <td style="font-size:12px;">${doelCell}</td>
+      <td style="font-size:12px;color:var(--color-text-secondary);">${esc(m.opm)}</td>
+      <td style="display:flex;gap:4px;">
+        <button class="btn" style="padding:4px 8px;" onclick="editMapping('${m.id}')" title="Bewerken"><i class="ti ti-edit" aria-hidden="true"></i></button>
+        <button class="btn danger" style="padding:4px 8px;" onclick="deleteMapping('${m.id}')" title="Verwijderen"><i class="ti ti-trash" aria-hidden="true"></i></button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  updateLeverancierFilter();
+}
+
+function viewXML(id) {
+  const m = mappings.find(x => x.id === id);
+  if (!m || !m.xmlContent) return;
+  document.getElementById('xml-modal-title').textContent = m.xml || 'XML-bestand';
+  document.getElementById('xml-modal-content').textContent = m.xmlContent;
+  document.getElementById('xml-modal-bg').classList.add('open');
+}
+
+function closeXMLModal(e) {
+  if (e.target === document.getElementById('xml-modal-bg')) document.getElementById('xml-modal-bg').classList.remove('open');
+}
+
+function updateLeverancierFilter() {
+  const sel = document.getElementById('sel-lev');
+  const cur = sel.value;
+  const levs = getLeveranciers();
+  sel.innerHTML = '<option value="">Alle leveranciers</option>';
+  levs.forEach(l => { const o = document.createElement('option'); o.value = l; o.textContent = l; if (l === cur) o.selected = true; sel.appendChild(o); });
+  const dl = document.getElementById('lev-list');
+  dl.innerHTML = '';
+  levs.forEach(l => { const o = document.createElement('option'); o.value = l; dl.appendChild(o); });
+}
+
+function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function openModal(id) {
+  editId = id || null;
+  currentXMLContent = '';
+  doelNotities = {};
+  document.getElementById('xml-filename').textContent = 'Klik om een XML-bestand te uploaden…';
+  document.getElementById('xml-filename').classList.remove('loaded');
+  document.getElementById('xml-preview').style.display = 'none';
+  document.getElementById('xml-preview').textContent = '';
+  document.getElementById('xml-file-input').value = '';
+  document.getElementById('modal-title').textContent = id ? 'Mapping bewerken' : 'Mapping toevoegen';
+  document.getElementById('form-err').style.display = 'none';
+  document.getElementById('f-doel-notitie').style.display = 'none';
+  document.getElementById('notitie-label').style.display = 'none';
+  document.getElementById('notitie-hint').style.display = 'none';
+
+  if (id) {
+    const m = mappings.find(x => x.id === id);
+    document.getElementById('f-lev').value = m.leverancier;
+    document.getElementById('f-xml').value = m.xml;
+    document.getElementById('f-herk').value = m.herk;
+    document.getElementById('f-line').value = m.line;
+    document.getElementById('f-doel').value = m.doel;
+    document.getElementById('f-verp').checked = m.verplicht;
+    document.getElementById('f-opm').value = m.opm;
+    doelNotities = Object.assign({}, m.doelNotities || {});
+    if (m.xmlContent) {
+      currentXMLContent = m.xmlContent;
+      document.getElementById('xml-filename').textContent = m.xml;
+      document.getElementById('xml-filename').classList.add('loaded');
+      const preview = document.getElementById('xml-preview');
+      preview.style.display = 'block';
+      preview.textContent = m.xmlContent.slice(0, 600) + (m.xmlContent.length > 600 ? '\n…' : '');
+    }
+    if (m.doel) onDoelChange();
+  } else {
+    ['f-lev','f-xml','f-herk','f-line','f-opm'].forEach(fid => document.getElementById(fid).value = '');
+    document.getElementById('f-doel').value = '';
+    document.getElementById('f-verp').checked = false;
+  }
+  document.getElementById('modal-bg').classList.add('open');
+  setTimeout(() => document.getElementById('f-lev').focus(), 50);
+}
+
+function closeModal() { document.getElementById('modal-bg').classList.remove('open'); }
+function bgClose(e) { if (e.target === document.getElementById('modal-bg')) closeModal(); }
+
+function saveMapping() {
+  const lev = document.getElementById('f-lev').value.trim();
+  const xml = document.getElementById('f-xml').value.trim();
+  const doel = document.getElementById('f-doel').value;
+  const err = document.getElementById('form-err');
+  if (!lev || !xml || !doel) { err.textContent = 'Vul leverancier, XML en SpendCloud-veld in.'; err.style.display = 'block'; return; }
+  err.style.display = 'none';
+  const huidigNotitie = document.getElementById('f-doel-notitie').value;
+  if (doel) doelNotities[doel] = huidigNotitie;
+  const m = {
+    id: editId || Date.now().toString(36) + Math.random().toString(36).slice(2),
+    leverancier: lev, xml,
+    xmlContent: currentXMLContent || '',
+    herk: document.getElementById('f-herk').value.trim(),
+    line: document.getElementById('f-line').value.trim(),
+    doel,
+    doelNotities: Object.assign({}, doelNotities),
+    verplicht: document.getElementById('f-verp').checked,
+    opm: document.getElementById('f-opm').value.trim()
+  };
+  if (editId) { const idx = mappings.findIndex(x => x.id === editId); mappings[idx] = m; }
+  else { mappings.push(m); }
+  save(); closeModal(); render();
+}
+
+function editMapping(id) { openModal(id); }
+function deleteMapping(id) { mappings = mappings.filter(x => x.id !== id); save(); render(); }
+
+function exportCSV() {
+  const header = ['Leverancier','XML','Herkenningsstring','Line identifier','SpendCloud-veld','XML-verwijzing veld','Verplicht','Opmerking'];
+  const rows = mappings.map(m => {
+    const notitie = (m.doelNotities || {})[m.doel] || '';
+    return [m.leverancier, m.xml, m.herk, m.line, m.doel, notitie, m.verplicht ? 'Ja' : 'Nee', m.opm];
+  });
+  const csv = [header, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'spendcloud_xml_mappings.csv'; a.click();
+}
+
+document.getElementById('f-doel-notitie').addEventListener('input', onDoelNotitieInput);
+document.getElementById('sel-lev').addEventListener('change', render);
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('only-required').addEventListener('change', render);
+render();
+</script>
